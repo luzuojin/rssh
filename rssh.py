@@ -90,7 +90,7 @@ def add(alias, shost, port='22'):
     if '@' in shost:
         user = shost[:shost.index('@')]
         host = shost[shost.index('@')+1:]
-    pawd = raw_input("Password:")
+    pawd = raw_input("Password: ")
     sessions = loadConf()
     sessions[alias] = Session(host, port, user, pawd, alias)
     writeConf(sessions)
@@ -113,8 +113,16 @@ def edit(alias):
         print alias + ' not exists'
     else :
         session = sessions[alias]
-        pawd = raw_input("Password:")
-        session.pawd = pawd
+        host = raw_input("Host: ")
+        if host:
+            if '@' in host:
+                session.user = host[:host.index('@')]
+                session.host = host[host.index('@')+1:]
+            else:
+                session.host = host
+        pawd = raw_input("Password: ")
+        if pawd:
+            session.pawd = pawd
         writeConf(sessions)
 
 def rsync(session, source, dest):
