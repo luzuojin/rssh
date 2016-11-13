@@ -120,6 +120,9 @@ def edit(alias):
                 session.host = host[host.index('@')+1:]
             else:
                 session.host = host
+        port = raw_input("Port: ")
+        if port:
+            session.port = port
         pawd = raw_input("Password: ")
         if pawd:
             session.pawd = pawd
@@ -142,10 +145,10 @@ def put(alias, dest, source):
 
 def login(alias):
     session = getSession(alias)
-    # setTitle(session)
-    # session.sshLogin()
-    print session.toStr()
-
+    if session:
+        # setTitle(session)
+        # session.sshLogin()
+        print session.toStr()
 
 def setTitle(session):
     os.environ["TERM"] = "vt100"
