@@ -20,7 +20,7 @@ then
 elif [ $1 == 'install' ] ;
 then
 	ln -s $dir/rssh /usr/local/bin/rssh
-elif [ $1 == 'ls' ] || [ $1 == 'add' ] || [ $1 == 'rm' ] || [ $1 == 'edit' ] ;
+elif [ $1 == 'ls' ] || [ $1 == 'add' ] || [ $1 == 'rm' ] || [ $1 == 'edit' ]  || [ $1 == 'get' ]  || [ $1 == 'put' ] ;
 then
 	python $dir/rssh.py $@
 else

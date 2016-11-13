@@ -4,6 +4,7 @@
 import os
 import sys
 import base64
+import pexpect
 
 # sys.stdout.write("\x1b]2;Another Title\x07")
 # sys.stdout.write("\033]0;Another Title\007")
@@ -26,21 +27,26 @@ class Session:
 
     def sshLogin(self):
         loginCmd = "ssh %s@%s -p%s" % (self.user, self.host, self.port)
-        child = pexpect.spawn(loginCmd)
-        index = child.expect(['password:','\(yes/no\)\?', pexpect.EOF, pexpect.TIMEOUT])
+        self.execute(loginCmd)
+
+    def execute(self, cmd):
+        child = pexpect.spawn(cmd)
+        index = child.expect(['assword:','\(yes/no\)\?', pexpect.EOF, pexpect.TIMEOUT])
         if index == 0:
             child.sendline(self.pawd)
             child.interact()
         elif index == 1:
             child.sendline('yes')
-            child.expect(['password:'])
+            child.expect(['assword:'])
             child.sendline(self.pawd)
             child.interact()
         elif index == 2:
-            print "子程序异常，退出!"
+            print child.before
             child.close()
         elif index == 3:
-            print "连接超时"
+            print "connect timeout"
+            print child.before
+            child.close()
 
     def toTxt(self):
         return self.alias + '\t' + self.host + '\t' + self.port + '\t' + self.user + '\t' + base64.b64encode(self.pawd)
@@ -70,6 +76,13 @@ def writeConf(sessions, conf=os.path.expanduser('~/.rssh')):
         file.write(session.toTxt())
         file.write('\n')
     file.close()
+
+def getSession(alias):
+    sessions = loadConf()
+    if alias not in sessions:
+        print alias + ' not exists'
+    else:
+        return sessions[alias]
 
 def add(alias, shost, port='22'):
     user = 'root'
@@ -104,15 +117,26 @@ def edit(alias):
         session.pawd = pawd
         writeConf(sessions)
 
+def rsync(session, source, dest):
+    cmd = "rsync -progress -avztr --timeout=600 --contimeout=600 -e'ssh -p %s' %s %s" % (session.port, source, dest)
+    print cmd
+    session.execute(cmd)
+
+def get(alias, source, dest):
+    session = getSession(alias)
+    rsource = '%s@%s:%s' % (session.user, session.host, source)
+    rsync(session, rsource, dest)
+
+def put(alias, dest, source):
+    session = getSession(alias)
+    rdest = '%s@%s:%s' % (session.user, session.host, dest)
+    rsync(session, source, rdest)
+
 def login(alias):
-    sessions = loadConf()
-    if alias not in sessions:
-        print alias + ' not exists'
-    else:
-        session = sessions[alias]
-        # setTitle(session)
-        # session.sshLogin()
-        print session.toStr()
+    session = getSession(alias)
+    # setTitle(session)
+    # session.sshLogin()
+    print session.toStr()
 
 
 def setTitle(session):
@@ -120,19 +144,42 @@ def setTitle(session):
     sys.stdout.write("\033]0;%s ~ %s@%s\007" % (session.alias, session.user, session.host))
 
 if __name__ == '__main__':
-    if len(sys.argv) == 1:
-        print 'rssh {alias|ls|rm|add}'
+    args = sys.argv
+    argsnum = len(args)
+    if argsnum == 1:
+        print 'rssh {alias|ls|rm|add|get|put}'
         exit(0)
 
-    if 'ls' == sys.argv[1]:
+    if 'ls' == args[1]:
         list()
-    elif 'rm' == sys.argv[1]:
-        remove(sys.argv[2])
-    elif 'add' == sys.argv[1]:
-        add(sys.argv[2], sys.argv[3])
-    elif 'edit' == sys.argv[1]:
-        edit(sys.argv[2])
+    elif 'rm' == args[1]:
+        if argsnum < 3:
+            print 'rssh rm alias'
+        else:
+            remove(args[2])
+    elif 'add' == args[1]:
+        if argsnum < 4:
+            print 'rssh add alias user@host port (optional [user@|port])'
+        elif argsnum == 4:
+            add(args[2], args[3])
+        else:
+            add(args[2], args[3], args[4])
+    elif 'edit' == args[1]:
+        if argsnum < 3:
+            print 'rssh edit alias'
+        else:
+            edit(args[2])
+    elif 'get' == args[1]:
+        if argsnum < 5:
+            print 'rssh get alias source dest'
+        else:
+            get(args[2], args[3], args[4])
+    elif 'put' == args[1]:
+        if argsnum < 5:
+            print 'rssh put alias dest source'
+        else:
+            put(args[2], args[3], args[4])
     else:
-        login(sys.argv[1])
+        login(args[1])
 
 
