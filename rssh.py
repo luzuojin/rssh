@@ -5,6 +5,7 @@ import os
 import sys
 import base64
 import pexpect
+import paramiko
 
 # sys.stdout.write("\x1b]2;Another Title\x07")
 # sys.stdout.write("\033]0;Another Title\007")
@@ -47,6 +48,29 @@ class Session:
             print "connect timeout"
             print child.before
             child.close()
+
+    def remoteExec(self, cmd):
+        ssh = None
+        try:
+            ssh = paramiko.SSHClient()
+            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            ssh.connect(self.host, int(self.port), self.user, self.pawd, timeout=5)
+
+            chan = ssh.get_transport().open_session()
+            chan.get_pty()
+            chan.exec_command(cmd)
+            ret = ''
+            while True:
+                if chan.recv_ready() or chan.recv_stderr_ready:
+                    r = chan.recv(1024)
+                    ret += r
+                if chan.exit_status_ready():
+                    break
+            return ret
+        finally :
+            if ssh:
+                ssh.close()
+
 
     def toTxt(self):
         return self.alias + '\t' + self.host + '\t' + self.port + '\t' + self.user + '\t' + base64.b64encode(self.pawd)
@@ -130,7 +154,6 @@ def edit(alias):
 
 def rsync(session, source, dest):
     cmd = "rsync -progress -avztr --timeout=600 -e'ssh -p %s' %s %s" % (session.port, source, dest)
-    print cmd
     session.execute(cmd)
 
 def get(alias, source, dest):
@@ -142,6 +165,12 @@ def put(alias, dest, source):
     session = getSession(alias)
     rdest = '%s@%s:%s' % (session.user, session.host, dest)
     rsync(session, source, rdest)
+
+def call(alias, port, uri):
+    session = getSession(alias)
+    cmd = 'curl "http://127.0.0.1:%s/%s"' % (port, uri)
+    print cmd
+    print session.remoteExec(cmd)
 
 def login(alias):
     session = getSession(alias)
@@ -190,6 +219,11 @@ if __name__ == '__main__':
             print 'rssh put alias dest source'
         else:
             put(args[2], args[3], args[4])
+    elif 'call' == args[1]:
+        if argsnum < 5:
+            print 'rssh call alias port uri'
+        else:
+            call(args[2], args[3], args[4])
     else:
         login(args[1])
 
