@@ -129,7 +129,7 @@ def edit(alias):
         writeConf(sessions)
 
 def rsync(session, source, dest):
-    cmd = "rsync -progress -avztr --timeout=600 --contimeout=600 -e'ssh -p %s' %s %s" % (session.port, source, dest)
+    cmd = "rsync -progress -avztr --timeout=600 -e'ssh -p %s' %s %s" % (session.port, source, dest)
     print cmd
     session.execute(cmd)
 
