@@ -127,7 +127,7 @@ def remove(alias):
 def list():
     print
     sessions = loadConf()
-    for key in sessions:
+    for key in sorted(sessions):
         session = sessions[key]
         print session.alias + '\t' + session.host
 
