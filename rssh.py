@@ -8,12 +8,6 @@ import pexpect
 import paramiko
 
 class Session:
-    host = ''
-    port = 0
-    user = ''
-    pawd = ''
-    alias= ''
-
     def __init__(self, host, port, user, pawd, alias):
         self.host = host
         self.port = port
@@ -182,53 +176,42 @@ def setTitle(session):
     os.environ["TERM"] = "vt100"
     sys.stdout.write("\033]0;%s ~ %s@%s\007" % (session.alias, session.user, session.host))
 
+
+class Option:
+    def __init__(self, func, args, hint):
+        self.func= func
+        self.args= args
+        self.hint= hint
+
+    def execute(self,args):
+        self.func(*args)
+
+options = {
+    'ls'  : Option(list, 0, ''),
+    'rm'  : Option(remove, 1, 'alias'),
+    'add' : Option(add, 2, 'alias user(root)@host port(22)'),
+    'edit': Option(edit, 1, 'alias'),
+    'put' : Option(put, 3, 'alias dest source'),
+    'get' : Option(get, 3, 'alias source dest'),
+    'exec': Option(exec0, 2, 'alias cmd'),
+    'call': Option(call, 3, 'alias port uri'),
+}
+
+def doOption(key, args):
+    if key in options:
+        option = options[key]
+        if len(args) < option.args:
+            print 'rssh %s %s' % (key, option.hint)
+        else:
+            option.execute(args)
+    else:
+        login(key)
+
 if __name__ == '__main__':
     args = sys.argv
     argsnum = len(args)
     if argsnum == 1:
-        print 'rssh {alias|ls|rm|add|get|put}'
+        print 'rssh {alias|ls|rm|add|get|put|exec|call}'
         exit(0)
     
-    if 'ls' == args[1]:
-        list()
-    elif 'rm' == args[1]:
-        if argsnum < 3:
-            print 'rssh rm alias'
-        else:
-            remove(args[2])
-    elif 'add' == args[1]:
-        if argsnum < 4:
-            print 'rssh add alias user@host port (optional [user@|port])'
-        elif argsnum == 4:
-            add(args[2], args[3])
-        else:
-            add(args[2], args[3], args[4])
-    elif 'edit' == args[1]:
-        if argsnum < 3:
-            print 'rssh edit alias'
-        else:
-            edit(args[2])
-    elif 'get' == args[1]:
-        if argsnum < 5:
-            print 'rssh get alias source dest'
-        else:
-            get(args[2], args[3], args[4])
-    elif 'put' == args[1]:
-        if argsnum < 5:
-            print 'rssh put alias dest source'
-        else:
-            put(args[2], args[3], args[4])
-    elif 'call' == args[1]:
-        if argsnum < 5:
-            print 'rssh call alias port uri'
-        else:
-            call(args[2], args[3], args[4])
-    elif 'exec' == args[1]:
-        if argsnum < 4:
-            print 'rssh exec alias cmd'
-        else:
-            exec0(args[2], args[3])
-    else:
-        login(args[1])
-
-
+    doOption(args[1], args[2:])
