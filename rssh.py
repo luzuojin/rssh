@@ -168,8 +168,11 @@ def put(alias, dest, source):
     rsync(session, source, rdest)
 
 def call(alias, port, uri):
-    session = getSession(alias)
     cmd = 'curl "http://127.0.0.1:%s/%s"' % (port, uri)
+    exec0(alias, cmd)
+
+def exec0(alias, cmd):
+    session = getSession(alias)
     print cmd
     print session.remoteExec(cmd)
 
@@ -225,6 +228,11 @@ if __name__ == '__main__':
             print 'rssh call alias port uri'
         else:
             call(args[2], args[3], args[4])
+    elif 'exec' == args[1]:
+        if argsnum < 4:
+            print 'rssh exec alias cmd'
+        else:
+            exec0(args[2], args[3])
     else:
         login(args[1])
 

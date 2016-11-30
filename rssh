@@ -14,15 +14,20 @@ else
 	dir=$(dirname $dir)
 fi
 
+for arg;
+do
+	args=$args" $arg"
+done
+
 if [ x$1 == x ] ;
 then
 	echo 'rssh {allias|ls|add|rm|edit}'
 elif [ $1 == 'install' ] ;
 then
 	ln -s $dir/rssh /usr/local/bin/rssh
-elif [ $1 == 'ls' ] || [ $1 == 'add' ] || [ $1 == 'rm' ] || [ $1 == 'edit' ]  || [ $1 == 'get' ]  || [ $1 == 'put' ]   || [ $1 == 'call' ] ;
+elif [ $1 == 'ls' ] || [ $1 == 'add' ] || [ $1 == 'rm' ] || [ $1 == 'edit' ]  || [ $1 == 'get' ]  || [ $1 == 'put' ]  || [ $1 == 'call' ]  || [ $1 == 'exec' ] ;
 then
-	python $dir/rssh.py $@
+	python $dir/rssh.py $args
 else
-	expect $dir/rssh.ex $@
+	expect $dir/rssh.ex $args
 fi
