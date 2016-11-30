@@ -4,7 +4,7 @@ set dir [file dirname [info script]]
 set alias_nx [lindex $argv 0]
 append alias_nx " not exists"
 
-set out [exec python $dir/rssh.py $argv]
+set out [exec python $dir/rssh.py show $argv]
 
 if {$out == $alias_nx} {
     puts $out

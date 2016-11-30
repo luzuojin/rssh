@@ -6,6 +6,7 @@ import sys
 import base64
 import pexpect
 import paramiko
+from collections import OrderedDict
 
 class Session:
     def __init__(self, host, port, user, pawd, alias):
@@ -168,8 +169,12 @@ def exec0(alias, cmd):
 def login(alias):
     session = getSession(alias)
     if session:
-        # setTitle(session)
-        # session.sshLogin()
+        setTitle(session)
+        session.sshLogin()
+
+def show(alias):
+    session = getSession(alias)
+    if session:
         print session.toStr()
 
 def setTitle(session):
@@ -186,16 +191,17 @@ class Option:
     def execute(self,args):
         self.func(*args)
 
-options = {
-    'ls'  : Option(list, 0, ''),
-    'rm'  : Option(remove, 1, 'alias'),
-    'add' : Option(add, 2, 'alias user(root)@host port(22)'),
-    'edit': Option(edit, 1, 'alias'),
-    'put' : Option(put, 3, 'alias dest source'),
-    'get' : Option(get, 3, 'alias source dest'),
-    'exec': Option(exec0, 2, 'alias cmd'),
-    'call': Option(call, 3, 'alias port uri'),
-}
+options = OrderedDict([
+    ('ls'  , Option(list, 0, '')),
+    ('rm'  , Option(remove, 1, 'alias')),
+    ('add' , Option(add, 2, 'alias user(root)@host port(22)')),
+    ('edit', Option(edit, 1, 'alias')),
+    ('put' , Option(put, 3, 'alias dest source')),
+    ('get' , Option(get, 3, 'alias source dest')),
+    ('exec', Option(exec0, 2, 'alias cmd')),
+    ('call', Option(call, 3, 'alias port uri')),
+    ('show', Option(show, 1, 'alias'))
+])
 
 def doOption(key, args):
     if key in options:
@@ -204,14 +210,12 @@ def doOption(key, args):
             print 'rssh %s %s' % (key, option.hint)
         else:
             option.execute(args)
-    else:
-        login(key)
 
 if __name__ == '__main__':
     args = sys.argv
-    argsnum = len(args)
-    if argsnum == 1:
-        print 'rssh {alias|ls|rm|add|get|put|exec|call}'
-        exit(0)
-    
-    doOption(args[1], args[2:])
+    if len(args) == 1:
+        print 'rssh {%s}' % ('|'.join(map(str, options.keys())))
+    elif 'test' == args[1]:
+        print "OK" if len(args) == 2 or args[2] in options else "None"
+    else:
+        doOption(args[1], args[2:])
