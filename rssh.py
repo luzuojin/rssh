@@ -7,11 +7,6 @@ import base64
 import pexpect
 import paramiko
 
-# sys.stdout.write("\x1b]2;Another Title\x07")
-# sys.stdout.write("\033]0;Another Title\007")
-# 'echo -ne "\033]0;${USER}@${HOSTNAME}\007"'
-
-
 class Session:
     host = ''
     port = 0
@@ -193,7 +188,7 @@ if __name__ == '__main__':
     if argsnum == 1:
         print 'rssh {alias|ls|rm|add|get|put}'
         exit(0)
-
+    
     if 'ls' == args[1]:
         list()
     elif 'rm' == args[1]:
