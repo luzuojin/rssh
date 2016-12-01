@@ -210,6 +210,8 @@ def doOption(key, args):
             print 'rssh %s %s' % (key, option.hint)
         else:
             option.execute(args)
+    else:
+        login(key)
 
 if __name__ == '__main__':
     args = sys.argv
