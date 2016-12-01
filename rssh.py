@@ -214,7 +214,7 @@ def doOption(key, args):
 if __name__ == '__main__':
     args = sys.argv
     if len(args) == 1:
-        print 'rssh {%s}' % ('|'.join(map(str, options.keys())))
+        print 'rssh {%s}' % ('|'.join(options.keys()))
     elif 'test' == args[1]:
         print "OK" if len(args) == 2 or args[2] in options else "None"
     else:
