@@ -121,6 +121,20 @@ def list():
         session = sessions[key]
         print session.alias + '\t' + session.host
 
+def show(alias):
+    session = getSession(alias)
+    if session:
+        print session.toStr()
+
+def move(alias, new_alias):
+    sessions = loadConf()
+    if alias not in sessions:
+        print alias + ' not exists'
+    else:
+        session = sessions[alias]
+        session.alias = new_alias
+        writeConf(sessions)
+
 def edit(alias):
     sessions = loadConf()
     if alias not in sessions:
@@ -172,11 +186,6 @@ def login(alias):
         setTitle(session)
         session.sshLogin()
 
-def show(alias):
-    session = getSession(alias)
-    if session:
-        print session.toStr()
-
 def setTitle(session):
     os.environ["TERM"] = "vt100"
     sys.stdout.write("\033]0;%s ~ %s@%s\007" % (session.alias, session.user, session.host))
@@ -193,14 +202,15 @@ class Option:
 
 options = OrderedDict([
     ('ls'  , Option(list, 0, '')),
-    ('rm'  , Option(remove, 1, 'alias')),
     ('add' , Option(add, 2, 'alias user(root)@host port(22)')),
     ('edit', Option(edit, 1, 'alias')),
+    ('rm'  , Option(remove, 1, 'alias')),
+    ('mv'  , Option(move, 2, 'alias new_alias')),
     ('put' , Option(put, 3, 'alias dest source')),
     ('get' , Option(get, 3, 'alias source dest')),
     ('exec', Option(exec0, 2, 'alias cmd')),
     ('call', Option(call, 3, 'alias port uri')),
-    ('show', Option(show, 1, 'alias'))
+    ('show', Option(show, 1, 'alias')),
 ])
 
 def doOption(key, args):
