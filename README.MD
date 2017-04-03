@@ -1,8 +1,8 @@
 ### Install
 ```bash
 #dependence
-brew install paramiko
-brew install pexpect
+pip install paramiko
+pip install pexpect
 
 #set path
 rssh install

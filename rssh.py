@@ -18,9 +18,9 @@ class Session:
 
     def sshLogin(self):
         loginCmd = "ssh %s@%s -p%s" % (self.user, self.host, self.port)
-        self.execute(loginCmd)
+        self.expectExec(loginCmd)
 
-    def execute(self, cmd):
+    def expectExec(self, cmd):
         child = pexpect.spawn(cmd)
         index = child.expect(['assword:','\(yes/no\)\?', pexpect.EOF, pexpect.TIMEOUT])
         if index == 0:
@@ -159,7 +159,7 @@ def edit(alias):
 def rsync(session, source, dest):
     cmd = "rsync -progress -avztr --timeout=600 -e'ssh -p %s' %s %s" % (session.port, source, dest)
     print cmd
-    session.execute(cmd)
+    session.expectExec(cmd)
 
 def get(alias, source, dest):
     session = getSession(alias)
@@ -170,10 +170,6 @@ def put(alias, dest, source):
     session = getSession(alias)
     rdest = '%s@%s:%s' % (session.user, session.host, dest)
     rsync(session, source, rdest)
-
-def call(alias, port, uri):
-    cmd = 'curl "http://127.0.0.1:%s/%s"' % (port, uri)
-    exec0(alias, cmd)
 
 def exec0(alias, cmd):
     session = getSession(alias)
@@ -209,7 +205,6 @@ options = OrderedDict([
     ('put' , Option(put, 3, 'alias dest source')),
     ('get' , Option(get, 3, 'alias source dest')),
     ('exec', Option(exec0, 2, 'alias cmd')),
-    ('call', Option(call, 3, 'alias port uri')),
     ('show', Option(show, 1, 'alias')),
 ])
 
