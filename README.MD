@@ -25,6 +25,4 @@ rssh get alias source dest
 
 #remote sh exec
 rssh exec alias cmd
-#remote curl(127.0.0.1)
-rssh call alias port uri
 ```
