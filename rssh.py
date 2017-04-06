@@ -21,7 +21,9 @@ class Session:
         self.expectExec(loginCmd)
 
     def expectExec(self, cmd):
+        winsz = getWinsz()
         child = pexpect.spawn(cmd)
+        child.setwinsize(winsz[0], winsz[1])
         index = child.expect(['assword:','\(yes/no\)\?', pexpect.EOF, pexpect.TIMEOUT])
         if index == 0:
             child.sendline(self.pawd)
@@ -67,6 +69,15 @@ class Session:
 
     def toStr(self):
         return self.alias + '\t' + self.user + '\t' + self.host + '\t' + self.port + '\t' + self.pawd
+
+def getWinsz():
+    def ioctl_GWINSZ(fd):
+        try:
+            import fcntl, termios, struct
+            return struct.unpack('hh', fcntl.ioctl(fd, termios.TIOCGWINSZ, '1234'))
+        except:
+            pass
+    return ioctl_GWINSZ(0) or ioctl_GWINSZ(1) or ioctl_GWINSZ(2)
 
 def parse(txt):
     txt = txt.strip('\n')
