@@ -21,6 +21,7 @@ class Session:
         self.expectExec(loginCmd)
 
     def expectExec(self, cmd):
+        print cmd
         winsz = getWinsz()
         child = pexpect.spawn(cmd)
         child.setwinsize(winsz[0], winsz[1])
@@ -217,6 +218,7 @@ options = OrderedDict([
     ('get' , Option(get, 3, 'alias source dest')),
     ('exec', Option(exec0, 2, 'alias cmd')),
     ('show', Option(show, 1, 'alias')),
+    ('login',Option(login, 1, 'alias'))
 ])
 
 def doOption(key, args):
