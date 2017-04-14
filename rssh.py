@@ -18,10 +18,10 @@ class Session:
 
     def sshLogin(self):
         loginCmd = "ssh %s@%s -p%s" % (self.user, self.host, self.port)
+        print loginCmd
         self.expectExec(loginCmd)
 
     def expectExec(self, cmd):
-        print cmd
         winsz = getWinsz()
         child = pexpect.spawn(cmd)
         child.setwinsize(winsz[0], winsz[1])
