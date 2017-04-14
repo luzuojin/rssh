@@ -12,8 +12,10 @@ else
 	dir=$(dirname $dir)
 fi
 
-if [ $(python $dir/rssh.py test $1) == 'OK' ] ; then
-	python $dir/rssh.py "$@"
+if [ $1 == 'install' ] ; then
+	ln -s $dir/rssh /usr/local/bin/rssh
+#elif [ $(python $dir/rssh.py test $1) != 'OK' ] ; then
+#    expect $dir/rssh.ex "$@"
 else
-	expect $dir/rssh.ex "$@"
+	python $dir/rssh.py "$@"
 fi
