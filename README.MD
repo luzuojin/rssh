@@ -6,6 +6,11 @@ pip install pexpect
 
 #set path
 rssh install
+
+~/.shh/config
+Host *
+  TCPKeepAlive yes
+  ServerAliveInterval 30
 ```
 ### Usage
 ```bash
