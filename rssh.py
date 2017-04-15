@@ -17,7 +17,7 @@ class Session:
         self.alias = alias
 
     def sshLogin(self):
-        loginCmd = "ssh %s@%s -p%s" % (self.user, self.host, self.port)
+        loginCmd = "ssh %s@%s -p%s -o TCPKeepAlive=yes -o ServerAliveInterval=30" % (self.user, self.host, self.port)
         print loginCmd
         self.expectExec(loginCmd)
 
