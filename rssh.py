@@ -22,18 +22,16 @@ class Session:
         self.expectExec(loginCmd)
 
     def expectExec(self, cmd):
-        winsz = getWinsz()
         child = pexpect.spawn(cmd)
-        child.setwinsize(winsz[0], winsz[1])
         index = child.expect(['assword:','\(yes/no\)\?', pexpect.EOF, pexpect.TIMEOUT])
         if index == 0:
             child.sendline(self.pawd)
-            child.interact()
+            interact(child)
         elif index == 1:
             child.sendline('yes')
             child.expect(['assword:'])
             child.sendline(self.pawd)
-            child.interact()
+            interact(child)
         elif index == 2:
             print child.before
             child.close()
@@ -70,6 +68,11 @@ class Session:
 
     def toStr(self):
         return self.alias + '\t' + self.user + '\t' + self.host + '\t' + self.port + '\t' + self.pawd
+
+def interact(child):
+    winsz = getWinsz()
+    child.setwinsize(winsz[0], winsz[1])
+    child.interact()
 
 def getWinsz():
     def ioctl_GWINSZ(fd):
