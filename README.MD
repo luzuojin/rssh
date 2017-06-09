@@ -1,5 +1,8 @@
 ### Install
 ```bash
+#brew
+/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+
 #dependence
 pip install paramiko
 pip install pexpect
