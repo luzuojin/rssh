@@ -1,16 +1,15 @@
 ### Install
 ```bash
+#brew
+/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+brew install pip
+
 #dependence
 pip install paramiko
 pip install pexpect
 
 #set path
 rssh install
-
-~/.shh/config
-Host *
-  TCPKeepAlive yes
-  ServerAliveInterval 30
 ```
 ### Usage
 ```bash
