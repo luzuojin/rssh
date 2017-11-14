@@ -57,7 +57,10 @@ class Session:
         try:
             ssh = paramiko.SSHClient()
             ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            ssh.connect(self.host, int(self.port), self.user, self.pawd, timeout=5)
+            if self.pawd:
+                ssh.connect(self.host, int(self.port), self.user, self.pawd, timeout=5)
+            else:
+                ssh.connect(self.host, int(self.port), self.user, pkey=paramiko.RSAKey.from_private_key_file(getKeyfile(self.alias)), timeout=5)
 
             chan = ssh.get_transport().open_session()
             chan.get_pty()
