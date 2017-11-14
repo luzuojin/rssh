@@ -6,6 +6,7 @@ import sys
 import base64
 import pexpect
 import paramiko
+import shutil
 from collections import OrderedDict
 
 class Session:
@@ -17,9 +18,20 @@ class Session:
         self.alias = alias
 
     def sshLogin(self):
+        if self.pawd:
+            self.pawdLogin()
+        else:
+            self.keyfLogin()
+
+    def pawdLogin(self):
         loginCmd = "ssh %s@%s -p%s -o TCPKeepAlive=yes -o ServerAliveInterval=30" % (self.user, self.host, self.port)
         print loginCmd
         self.expectExec(loginCmd)
+
+    def keyfLogin(self):
+        loginCmd = "ssh %s@%s -p%s -o TCPKeepAlive=yes -o ServerAliveInterval=30 -i %s" % (self.user, self.host, self.port, getKeyfile(self.alias))
+        print loginCmd
+        os.system(loginCmd)
 
     def expectExec(self, cmd):
         child = pexpect.spawn(cmd)
@@ -123,6 +135,17 @@ def add(alias, shost, port='22'):
     sessions = loadConf()
     sessions[alias] = Session(host, port, user, pawd, alias)
     writeConf(sessions)
+    if not pawd:
+        setKeyfile(alias)
+
+def getKeyfile(alias):
+    return os.path.expanduser('~/.ssh/rssh_%s_keyf' % alias)
+
+def setKeyfile(alias):
+    keyf = raw_input("Key file: ")
+    if keyf:
+        shutil.copy(keyf, getKeyfile(alias))
+        os.system('chmod 600 %s' % getKeyfile(alias))
 
 def remove(alias):
     sessions = loadConf()
@@ -170,11 +193,18 @@ def edit(alias):
         if pawd:
             session.pawd = pawd
         writeConf(sessions)
+        if not pawd:
+            setKeyfile(alias)
 
 def rsync(session, source, dest):
-    cmd = "rsync --progress -avztr --timeout=600 -e'ssh -p %s' %s %s" % (session.port, source, dest)
-    print cmd
-    session.expectExec(cmd)
+    if session.pawd:
+        cmd = "rsync --progress -avztr --timeout=600 -e'ssh -p %s' %s %s" % (session.port, source, dest)
+        print cmd
+        session.expectExec(cmd)
+    else:
+        cmd = "rsync --progress -avztr --timeout=600 -e'ssh -p %s -i %s' %s %s" % (session.port, getKeyfile(session.alias), source, dest)
+        print cmd
+        os.system(cmd)
 
 def get(alias, source, dest):
     session = getSession(alias)
