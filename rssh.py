@@ -18,20 +18,12 @@ class Session:
         self.alias = alias
 
     def sshLogin(self):
-        if self.pawd:
-            self.pawdLogin()
-        else:
-            self.pkeyLogin()
-
-    def pawdLogin(self):
         loginCmd = "ssh %s@%s -p%s -o TCPKeepAlive=yes -o ServerAliveInterval=30" % (self.user, self.host, self.port)
         print loginCmd
-        self.expectExec(loginCmd)
-
-    def pkeyLogin(self):
-        loginCmd = "ssh %s@%s -p%s -o TCPKeepAlive=yes -o ServerAliveInterval=30 -i %s" % (self.user, self.host, self.port, getPkey(self.alias))
-        print loginCmd
-        os.system(loginCmd)
+        if self.pawd:
+            self.expectExec(loginCmd)
+        else:
+            os.system('%s -i %s' % (loginCmd, getPkey(self.alias)))        
 
     def expectExec(self, cmd):
         child = pexpect.spawn(cmd)
