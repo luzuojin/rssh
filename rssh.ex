@@ -23,7 +23,7 @@ if {$out == $alias_nx} {
 
     # ssh remote
     set timeout 30
-    spawn ssh -p $port $user@$host
+    spawn ssh $user@$host -p$port -o TCPKeepAlive=yes -o ServerAliveInterval=30
     expect {
             "(yes/no)?"
             {send "yes\n";exp_continue}

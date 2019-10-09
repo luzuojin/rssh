@@ -15,7 +15,7 @@ fi
 if [ ! -z $1 ] && [ $1 == 'install' ] ; then
 	ln -s $dir/rssh /usr/local/bin/rssh
 #elif [ $(python $dir/rssh.py test $1) != 'OK' ] ; then
-#    expect $dir/rssh.ex "$@"
+#	expect $dir/rssh.ex "$@"
 else
 	python $dir/rssh.py "$@"
 fi
